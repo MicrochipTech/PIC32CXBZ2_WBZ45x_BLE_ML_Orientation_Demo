@@ -51,9 +51,6 @@ TensorFlow Lite allows users to deploy their trained models on these devices, an
 MPLAB Data Visualizer is utilized to collect the dataset required for training the machine learning model. The intuitive interface of MPLAB Data Visualizer simplifies the process of visualizing sensor data and enables users to highlight and mark the relevant data segments. These identified sections can then be saved in the CSV (Comma-Separated Values) format, which is subsequently used as input for training the model using TensorFlow.
 ![](Docs/MPLAB_DataVisualizer.PNG)
 
-| Tip | Go through the [overview](https://onlinedocs.microchip.com/pr/GUID-A5330D3A-9F51-4A26-B71D-8503A493DF9C-en-US-2/index.html?GUID-668A6CB2-F1FB-438D-9E1E-D67AC3C1C132) for understanding few key Zigbee 3.0 protocol concepts |
-| :- | :- |
-
 ## 2. Bill of materials<a name="step2">
 
 | TOOLS | QUANTITY |
@@ -94,7 +91,6 @@ MPLAB Data Visualizer is utilized to collect the dataset required for training t
 	  - crypto version: v3.7.6
 	  - wireless_pic32cxbz_wbz: v1.1.0
 	  - wireless_system_pic32cxbz_wbz: v1.2.0
-	  - wireless_zigbee: v5.0.0
 	  - wireless_ble: v1.0.0
 	  - tflite-micro: v1.0.0
 	  - tflite-micro-apps: v1.0.2
