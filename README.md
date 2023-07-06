@@ -225,12 +225,6 @@ MPLAB Data Visualizer is utilized to collect the dataset required for training t
 
 	extern const char* labels[];
 
-
-	// *****************************************************************************
-	// *****************************************************************************
-	// Section: Application Callback Functions
-	// *****************************************************************************
-	// *****************************************************************************
 	static void SNSR_ISR_HANDLER() 
 	{
 		
@@ -244,137 +238,75 @@ MPLAB Data Visualizer is utilized to collect the dataset required for training t
 	void Null_Handler() {
 		// Do nothing
 	}
+```
+- In APP_Tasks function -> APP_STATE_INIT, initialize the BLE stack, TensorFlow Lite and BMI160 sensor
+```c
+case APP_STATE_INIT:
+        {
+            bool appInitialized = true;
+            //appData.appQueue = xQueueCreate( 10, sizeof(APP_Msg_T) );
+            APP_BleStackInit();
+            BLE_GAP_SetAdvEnable(0x01, 0);
+            printf("[BLE] Started Advertising!!!\r\n");
+            MIKRO_INT_CallbackRegister(Null_Handler);
+            MIKRO_INT_Disable();
+            
+            /* Initialize the sensor data buffer */
+            if (ringbuffer_init(&snsr_buffer, _snsr_buffer_data, sizeof(_snsr_buffer_data) / sizeof(_snsr_buffer_data[0]), sizeof(_snsr_buffer_data[0])))
+            {        
+                app_failed = 1;
+            }
 
-	// *****************************************************************************
-	// *****************************************************************************
-	// Section: Application Initialization and State Machine Functions
-	// *****************************************************************************
-	// *****************************************************************************
+            /* Init and configure sensor */
+            if (sensor_init(&sensor) != SNSR_STATUS_OK) {
+                printf("ERROR: sensor init result = %d\n\r", sensor.status);
+                app_failed = 1;
+            }
 
+            if (sensor_set_config(&sensor) != SNSR_STATUS_OK) {
+                printf("ERROR: sensor configuration result = %d\n\r", sensor.status);
+                app_failed = 1;
+            }
 
-	/*******************************************************************************
-	  Function:
-		void APP_Initialize ( void )
+            printf("sensor type is %s\n\r", SNSR_NAME);
+            printf("sensor sample rate set at %dHz\n\r", SNSR_SAMPLE_RATE);
+            
+            #if SNSR_USE_ACCEL
+                printf("Accelerometer axes %s%s%s enabled with range set at +/-%dGs\n\r", SNSR_USE_ACCEL_X ? "x" : "", SNSR_USE_ACCEL_Y ? "y" : "", SNSR_USE_ACCEL_Z ? "z" : "", SNSR_ACCEL_RANGE);
+            #else
+                printf("Accelerometer disabled\n\r");
+            #endif
 
-	  Remarks:
-		See prototype in app.h.
-	 */
+            #if SNSR_USE_GYRO
+                printf("Gyrometer axes %s%s%s enabled with range set at %dDPS\n\r", SNSR_USE_GYRO_X ? "x" : "", SNSR_USE_GYRO_Y ? "y" : "", SNSR_USE_GYRO_Z ? "z" : "", SNSR_GYRO_RANGE);
+            #else
+                printf("Gyrometer disabled\n\r");
+            #endif
 
-	void APP_Initialize ( void )
-	{
-		/* Place the App state machine in its initial state. */
-		appData.state = APP_STATE_INIT;
+            
+            MIKRO_INT_Enable();
+            vTaskDelay(pdMS_TO_TICKS(20)+1);
+            MIKRO_INT_CallbackRegister(SNSR_ISR_HANDLER);
+            tflite_setup();
+            
+            if (appInitialized && !app_failed)
+            {
+                appData.state = APP_STATE_SERVICE_TASKS;
+                p_appMsg->msgId = APP_MSG_BMI160_SENSOR_READ;
+                OSAL_QUEUE_Send(&appData.appQueue, p_appMsg, 0);
+            }
+            break;
+        }
+```
 
-
-		appData.appQueue = xQueueCreate( 64, sizeof(APP_Msg_T) );
-	}
-
-
-	/******************************************************************************
-	  Function:
-		void APP_Tasks ( void )
-
-	  Remarks:
-		See prototype in app.h.
-	 */
-
-
-	void APP_Tasks ( void )
-	{
-		APP_Msg_T    appMsg[1];
-		APP_Msg_T   *p_appMsg;
-		p_appMsg=appMsg;
-		int8_t app_failed = 0;
-
-		/* Check the application's current state. */
-		switch ( appData.state )
-		{
-			/* Application's initial state. */
-			case APP_STATE_INIT:
-			{
-				bool appInitialized = true;
-				//appData.appQueue = xQueueCreate( 10, sizeof(APP_Msg_T) );
-				APP_BleStackInit();
-				BLE_GAP_SetAdvEnable(0x01, 0);
-				printf("[BLE] Started Advertising!!!\r\n");
-				MIKRO_INT_CallbackRegister(Null_Handler);
-				MIKRO_INT_Disable();
-				
-				/* Initialize the sensor data buffer */
-				if (ringbuffer_init(&snsr_buffer, _snsr_buffer_data, sizeof(_snsr_buffer_data) / sizeof(_snsr_buffer_data[0]), sizeof(_snsr_buffer_data[0])))
-				{        
-					app_failed = 1;
-				}
-
-				/* Init and configure sensor */
-				if (sensor_init(&sensor) != SNSR_STATUS_OK) {
-					printf("ERROR: sensor init result = %d\n\r", sensor.status);
-					app_failed = 1;
-				}
-
-				if (sensor_set_config(&sensor) != SNSR_STATUS_OK) {
-					printf("ERROR: sensor configuration result = %d\n\r", sensor.status);
-					app_failed = 1;
-				}
-
-				printf("sensor type is %s\n\r", SNSR_NAME);
-				printf("sensor sample rate set at %dHz\n\r", SNSR_SAMPLE_RATE);
-				
-				#if SNSR_USE_ACCEL
-					printf("Accelerometer axes %s%s%s enabled with range set at +/-%dGs\n\r", SNSR_USE_ACCEL_X ? "x" : "", SNSR_USE_ACCEL_Y ? "y" : "", SNSR_USE_ACCEL_Z ? "z" : "", SNSR_ACCEL_RANGE);
-				#else
-					printf("Accelerometer disabled\n\r");
-				#endif
-
-				#if SNSR_USE_GYRO
-					printf("Gyrometer axes %s%s%s enabled with range set at %dDPS\n\r", SNSR_USE_GYRO_X ? "x" : "", SNSR_USE_GYRO_Y ? "y" : "", SNSR_USE_GYRO_Z ? "z" : "", SNSR_GYRO_RANGE);
-				#else
-					printf("Gyrometer disabled\n\r");
-				#endif
-
-				
-				MIKRO_INT_Enable();
-				vTaskDelay(pdMS_TO_TICKS(20)+1);
-				MIKRO_INT_CallbackRegister(SNSR_ISR_HANDLER);
-				tflite_setup();
-				
-				if (appInitialized && !app_failed)
-				{
-					appData.state = APP_STATE_SERVICE_TASKS;
-					p_appMsg->msgId = APP_MSG_BMI160_SENSOR_READ;
-					OSAL_QUEUE_Send(&appData.appQueue, p_appMsg, 0);
-				}
-				break;
-			}
-
+- In APP_Tasks function -> APP_STATE_SERVICE_TASKS, read the BMI160 sensor value as shown below.
+```c
 			case APP_STATE_SERVICE_TASKS:
 			{
 				if (OSAL_QUEUE_Receive(&appData.appQueue, &appMsg, OSAL_WAIT_FOREVER))
 				{
-					if(p_appMsg->msgId==APP_MSG_BLE_STACK_EVT)
-					{
-						// Pass BLE Stack Event Message to User Application for handling
-						APP_BleStackEvtHandler((STACK_Event_T *)p_appMsg->msgData);
-					}
-					else if(p_appMsg->msgId==APP_MSG_BLE_STACK_LOG)
-					{
-						// Pass BLE LOG Event Message to User Application for handling
-						APP_BleStackLogHandler((BT_SYS_LogEvent_T *)p_appMsg->msgData);
-					}
-					else if(p_appMsg->msgId==APP_MSG_BMI160_SENSOR_INT)
-					{
-							/* Check if any errors we've flagged have been acknowledged */
-							if ((sensor.status != SNSR_STATUS_OK) || snsr_buffer_overrun)
-								return;
-
-							ringbuffer_size_t wrcnt;
-							snsr_data_t *ptr = ringbuffer_get_write_buffer(&snsr_buffer, &wrcnt);
-
-							if (wrcnt == 0)
-								snsr_buffer_overrun = true;
-							else if ((sensor.status = sensor_read(&sensor, ptr)) == SNSR_STATUS_OK)
-								ringbuffer_advance_write_index(&snsr_buffer, 1);
-					}
+					.
+					.
 					else if(p_appMsg->msgId==APP_MSG_BMI160_SENSOR_READ)
 					{
 						if (sensor.status != SNSR_STATUS_OK)
@@ -447,12 +379,20 @@ MPLAB Data Visualizer is utilized to collect the dataset required for training t
 						p_appMsg->msgId = APP_MSG_BMI160_SENSOR_READ;
 						OSAL_QUEUE_Send(&appData.appQueue, p_appMsg, 0);
 					}
+```
+- tflite_runInference() api is executed to predict the classification result from BMI160 sensor data.
+
+```c					
+					
 					else if(p_appMsg->msgId==APP_MSG_PROCESS_TFL)
 					{
 	#ifndef  TRAINING_MODE_ENABLED 
                         tflite_runInference();
 	#endif
 					}
+```
+- The Classification result is send to MBD App using Transparent UART Service.					
+```c
 					else if(p_appMsg->msgId==APP_MSG_BLE_TRPS_SEND)
 					{
 						char temp_buff[50];
@@ -460,25 +400,11 @@ MPLAB Data Visualizer is utilized to collect the dataset required for training t
 						int8_t max_score = p_appMsg->msgData[1];
 						uint8_t isMoving = p_appMsg->msgData[2];
 						sprintf(temp_buff, "%s [%d%%] -> %s\r\n", labels[max_index], (100*max_score)/127, ((isMoving>1)?"Is Moving":"Idle"));
-	#ifndef  TRAINING_MODE_ENABLED  
-						printf("%s", temp_buff);
-	#endif
 						if(conn_hdl != 0xFFFF)
 						{
 							BLE_TRSPS_SendData(conn_hdl, strlen(temp_buff), (uint8_t *)temp_buff);
 						}
 					}
-				}
-				break;
-			}
-			/* The default state should never be executed. */
-			default:
-			{
-				/* TODO: Handle error in application's state machine. */
-				break;
-			}
-		}
-	}	
 ```
 ## 6. Data Collection using MPLAB Data Visualizer<a name="step6">
 - Ensure that MPLAB Data Visualizer is installed in MPLAB X IDE. To Install MPLAB Data Visualizer, Open MPLAB X IDE -> Tools -> Plugins.
