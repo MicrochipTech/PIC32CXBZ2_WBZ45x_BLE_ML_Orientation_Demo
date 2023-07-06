@@ -447,7 +447,7 @@ case APP_STATE_INIT:
 
 - The Python code that creates an Artificial Neural Network (ANN) TensorFlow model and generates the Quantized TensorFlow Lite coefficient is available in the wbz451_bmi160_ml_orientation.ipynb notebook.
 
-- Open wbz451_bmi160_ml_orientation.ipynb in Google Colab or Jupyter Notebook.\
+- Open [wbz451_bmi160_ml_orientation.ipynb](train/wbz451_bmi160_ml_orientation.ipynb) in Google Colab or Jupyter Notebook.\
 [wbz451_bmi160_ml_orientation python code](Docs/wbz451_bmi160_ml_orientation.html)
 
 - The dataset files, which are saved in CSV format using MPLAB Data Visualizer, are mapped to a Python dictionary where the file paths serve as the values and the corresponding labels are used as keys in the dictionary.
