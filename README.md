@@ -38,8 +38,7 @@ The application uses a pretrained TensorFlow model to classify the orientation o
 
 ![](Docs/Hardware_Setup.PNG)
 
-In this application, a BMI160 6DOF IMU sensor is used to get x, y & z Accelerometer value and fed as input to TensorFlow Lite.
-The pretrained TensorFlow model has been trained to predict six different orientations: Horizontal Up, Horizontal Down, Vertical Up, Vertical Down, Side Front, and Side Back.
+In this application, the BMI160 6DOF IMU sensor is used to obtain x, y, and z accelerometer values. These values are then fed as inputs to TensorFlow Lite, which utilizes an Artificial Neural Network (ANN) model trained to classify six different orientations: Horizontal Up, Horizontal Down, Vertical Up, Vertical Down, Side Front, and Side Back.
 ![](Docs/Board_Orientation.PNG)
 
 To create MPLAB project with TensorFlow Lite, The TFLite Micro component available in MCC Harmony is used. 
