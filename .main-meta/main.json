@@ -1,0 +1,58 @@
+{
+    "metaDataVersion": "1.0.0",
+    "category": "com.microchip.ide.project",
+    "content": {
+        "metaDataVersion": "1.3.0",
+        "name": "com.microchip.mplabx.project.PIC32CXBZ2_WBZ45x_BLE_ML_Orientation_Demo",
+        "version": "1.0.0",
+        "displayName": "PIC32CXBZ2_WBZ45x ORIENTATION DETECTION USING TENSORFLOW LITE",
+        "projectName": "PIC32CXBZ2_WBZ45x_BLE_ML_Orientation_Demo",
+        "shortDescription": "IoT Made Easy!-This application shows how to use TensorFlow Lite to build a basic machine learning application on a PIC32CX-BZ2 / WBZ451 device. The application classifies the orientation of the WBZ451 Curiosity board using a pretrained TensorFlow model, and then sends the classification result to an MBD App.",
+        "ide": {
+            "name": "MPLAB X",
+            "semverRange": ">=6.05"
+        },
+        "compiler": [
+            {
+                "name": "XC32",
+                "semverRange": "^4.10.0"
+            }
+        ],
+        "dfp": {
+            "name": "PIC32CX-BZ_DFP",
+            "semverRange": "^1.0.116"
+        },
+        "configurator": {
+            "name": "MCC",
+            "semverRange": ">=5.1.17"
+        },
+        "device": {
+            "metaDataVersion": "1.0.0",
+            "category": "com.microchip.portal.contentRef",
+            "content": {
+                "metaDataVersion": "1.0.0",
+                "category": "com.microchip.device",
+                "name": " PIC32CX-BZ2",
+                "versionRange": "*"
+            }
+        },
+        "author": "Sankar Mohan",
+        "peripherals": [
+            "SERCOM"
+        ],
+        "keywords": [
+             "IoT","BLE","MPLAB X","XC32","SERCOM","MCC","Wireless","Development Tool","Bluetooth","I2C","Machine Learning","TensorFlow"
+        ],
+        "additionalData": {
+            "longDescription": {
+                "metaDataVersion": "1.0.0",
+                "category": "com.microchip.portal.fileRef",
+                "content": {
+                    "metaDataVersion": "1.0.0",
+                    "fileName": "./README.md",
+                    "mimeType": "text/markdown"
+                }
+            }
+        }
+    }
+}
